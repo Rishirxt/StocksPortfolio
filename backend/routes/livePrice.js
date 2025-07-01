@@ -9,9 +9,11 @@ router.get('/', async (req, res) => {
 
   try {
     const quote = await yf.quoteSummary(symbol, { modules: ['price'] });
+
     if (!quote.price) {
       return res.status(404).json({ error: "Stock data not found" });
     }
+
     res.json(quote.price);
   } catch (err) {
     console.error(err);

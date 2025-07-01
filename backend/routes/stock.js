@@ -1,18 +1,20 @@
-// routes/stock.js
 const express = require("express");
 const router = express.Router();
-const pool = require("../config/db");
+const { sql, pool, poolConnect } = require("../config/db");
 
-// GET all stocks from stock_prices table
 router.get("/api/stocks", async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT id, symbol, date, open, high, low, close, adj_close, volume 
+    await poolConnect;
+    const request = pool.request();
+
+    const result = await request.query(`
+      SELECT TOP 50 
+        id, symbol, date, [open], [high], [low], [close], adj_close, volume 
       FROM stock_prices 
-      ORDER BY date DESC 
-      LIMIT 50
+      ORDER BY date DESC
     `);
-    res.json(result.rows);
+
+    res.json(result.recordset);
   } catch (err) {
     console.error("Error fetching stocks:", err.message);
     res.status(500).json({ error: "Failed to fetch stocks" });

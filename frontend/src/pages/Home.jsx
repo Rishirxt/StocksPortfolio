@@ -1,3 +1,4 @@
+// All your existing imports and hooks...
 import React, { useEffect, useState } from "react";
 
 function Home() {
@@ -204,6 +205,7 @@ function Home() {
                         <td className="py-2">₹{stock.price}</td>
                         <td className="py-2">₹{stock.price * stock.quantity}</td>
                         <td className="py-2">₹{stock.price}</td>
+                        <td className="py-2">₹{stock.price}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -216,37 +218,92 @@ function Home() {
           <h1 className="text-2xl font-bold cursor-pointer hover:text-indigo-600">Welcome to Capital View</h1>
         )}
       </div>
-
-      {/* Right Sidebar: Stock Indexes */}
-      <div className="w-64 bg-white border-l p-4 overflow-y-auto">
-        <div className="flex justify-between items-center mb-2">
-          <h2 className="text-lg font-semibold">Global Indexes</h2>
-          <button className="text-sm text-indigo-600 hover:underline" onClick={() => setShowIndexes(!showIndexes)}>
-            {showIndexes ? "Hide" : "Show"}
-          </button>
+      {/* Add Portfolio Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96">
+            <h2 className="text-xl font-bold mb-4">Create New Portfolio</h2>
+            <input
+              type="text"
+              placeholder="Portfolio Name"
+              value={newPortfolioName}
+              onChange={(e) => setNewPortfolioName(e.target.value)}
+              className="w-full border p-2 rounded mb-4"
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                onClick={handleCreatePortfolio}
+              >
+                Create
+              </button>
+            </div>
+          </div>
         </div>
-        {showIndexes && (
-          <ul className="space-y-2">
-            {stockIndexes.length === 0 ? (
-              <p className="text-gray-500 text-sm">Loading...</p>
-            ) : (
-              stockIndexes.map((index) => (
-                <li key={index.symbol} className="flex justify-between items-center text-sm border-b pb-1">
-                  <span className="font-medium">{index.name}</span>
-                  <span
-                    className={`text-right ${
-                      typeof index.change === 'number' && index.change >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}
-                  >
-                    {typeof index.price === 'number' ? index.price.toFixed(2) : 'N/A'} (
-                    {typeof index.change === 'number' ? index.change.toFixed(2) : 'N/A'}%)
-                  </span>
-                </li>
-              ))
-            )}
-          </ul>
-        )}
-      </div>
+      )}
+
+      {/* Add Stock Modal */}
+      {showAddStockModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-[28rem] max-h-[80vh] overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">Add Stock</h2>
+            <select
+              onChange={(e) =>
+                setStockToAdd(stocks.find((s) => s.symbol === e.target.value))
+              }
+              className="w-full border p-2 rounded mb-4"
+              defaultValue=""
+            >
+              <option value="" disabled>Select stock</option>
+              {stocks.map((stock) => (
+                <option key={stock.symbol} value={stock.symbol}>
+                  {stock.symbol}
+                </option>
+              ))}
+            </select>
+            <input
+              type="date"
+              value={purchaseDate}
+              onChange={(e) => setPurchaseDate(e.target.value)}
+              className="w-full border p-2 rounded mb-4"
+            />
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              className="w-full border p-2 rounded mb-4"
+              placeholder="Quantity"
+            />
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full border p-2 rounded mb-4"
+              placeholder="Price"
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
+                onClick={() => setShowAddStockModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+                onClick={handleAddStock}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
