@@ -1,6 +1,6 @@
-// All your existing imports and hooks...
 import React, { useEffect, useState } from "react";
 import { API_BASE_URL } from "./config";
+
 function Home() {
   const [portfolios, setPortfolios] = useState([]);
   const [userId, setUserId] = useState(null);
@@ -61,7 +61,7 @@ function Home() {
     if (!showAddStockModal) return;
     const fetchStocks = async () => {
       try {
-        const res = await fetch("${API_BASE_URL}/api/stocks");
+        const res = await fetch(`${API_BASE_URL}/api/stocks`);
         const data = await res.json();
         setStocks(data);
       } catch (err) {
@@ -74,7 +74,7 @@ function Home() {
   useEffect(() => {
     const fetchIndexes = async () => {
       try {
-        const res = await fetch("${API_BASE_URL}/api/stock-indexes");
+        const res = await fetch(`${API_BASE_URL}/api/stock-indexes`);
         const data = await res.json();
         setStockIndexes(data);
       } catch (err) {
@@ -92,7 +92,7 @@ function Home() {
       return;
     }
     try {
-      const res = await fetch("${API_BASE_URL}/api/portfolios", {
+      const res = await fetch(`${API_BASE_URL}/api/portfolios`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newPortfolioName, userId }),
@@ -120,7 +120,7 @@ function Home() {
       return;
     }
     try {
-      const res = await fetch("${API_BASE_URL}/api/portfolio-stocks", {
+      const res = await fetch(`${API_BASE_URL}/api/portfolio-stocks`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -148,7 +148,6 @@ function Home() {
       alert("Server error while adding stock");
     }
   };
-
   return (
     <div className="flex h-screen">
       {/* Left Sidebar: Portfolios */}

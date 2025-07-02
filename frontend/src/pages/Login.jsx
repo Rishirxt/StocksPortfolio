@@ -10,7 +10,7 @@ export default function Login() {
   const login = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("`${API_BASE_URL}/api/login", { email, password });
+      const res = await axios.post(`${API_BASE_URL}/api/login`, { email, password });
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
