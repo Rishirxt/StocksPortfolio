@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "./config";
 const BrowseStocks = () => {
   const [stocks, setStocks] = useState([]);
   const [search, setSearch] = useState("");
@@ -9,7 +10,7 @@ const BrowseStocks = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/stocks")
+      .get(`${API_BASE_URL}/api/stocks`)
       .then((res) => setStocks(res.data))
       .catch((err) => console.error("Error fetching stocks:", err));
   }, []);

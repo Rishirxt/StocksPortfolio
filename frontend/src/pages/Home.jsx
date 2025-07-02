@@ -1,6 +1,6 @@
 // All your existing imports and hooks...
 import React, { useEffect, useState } from "react";
-
+import { API_BASE_URL } from "./config";
 function Home() {
   const [portfolios, setPortfolios] = useState([]);
   const [userId, setUserId] = useState(null);
@@ -33,7 +33,7 @@ function Home() {
     if (!userId) return;
     const fetchPortfolios = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/portfolios?userId=${userId}`);
+        const res = await fetch(`${API_BASE_URL}/api/portfolios?userId=${userId}`);
         const data = await res.json();
         if (Array.isArray(data)) setPortfolios(data);
       } catch (err) {
@@ -47,7 +47,7 @@ function Home() {
     if (!selectedPortfolio) return;
     const fetchPortfolioStocks = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/portfolio-stocks?portfolioId=${selectedPortfolio.id}`);
+        const res = await fetch(`${API_BASE_URL}/api/portfolio-stocks?portfolioId=${selectedPortfolio.id}`);
         const data = await res.json();
         if (Array.isArray(data)) setPortfolioStocks(data);
       } catch (err) {
@@ -61,7 +61,7 @@ function Home() {
     if (!showAddStockModal) return;
     const fetchStocks = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/stocks");
+        const res = await fetch("${API_BASE_URL}/api/stocks");
         const data = await res.json();
         setStocks(data);
       } catch (err) {
@@ -74,7 +74,7 @@ function Home() {
   useEffect(() => {
     const fetchIndexes = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/stock-indexes");
+        const res = await fetch("${API_BASE_URL}/api/stock-indexes");
         const data = await res.json();
         setStockIndexes(data);
       } catch (err) {
@@ -92,7 +92,7 @@ function Home() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:5000/api/portfolios", {
+      const res = await fetch("${API_BASE_URL}/api/portfolios", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newPortfolioName, userId }),
@@ -120,7 +120,7 @@ function Home() {
       return;
     }
     try {
-      const res = await fetch("http://localhost:5000/api/portfolio-stocks", {
+      const res = await fetch("${API_BASE_URL}/api/portfolio-stocks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
