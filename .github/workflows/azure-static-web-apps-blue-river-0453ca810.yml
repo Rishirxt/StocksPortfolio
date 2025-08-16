@@ -44,3 +44,43 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLUE_RIVER_0453CA810 }}
           action: "close"
+
+  deploy_backend_job:
+    # This job deploys the backend application to Azure App Service.
+    # It only runs on pushes to the main branch.
+    if: github.event_name == 'push' && github.event.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    name: Build and Deploy Backend
+    # This job depends on the frontend build and deploy job.
+    # Remove `needs` to run in parallel with the frontend deployment.
+    needs: build_and_deploy_job
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      # The following steps assume a Node.js backend in the /backend folder.
+      # Please adjust the path and build steps if your backend uses a different
+      # technology or is in a different location.
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Specify your Node.js version
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies and build
+        working-directory: ./backend
+        run: |
+          npm install
+          npm run build --if-present
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'portfolio-backend-api123'
+          # Create a secret in your GitHub repository settings called AZURE_WEBAPP_PUBLISH_PROFILE
+          # with the content of the publish profile from your Azure App Service.
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: ./backend
