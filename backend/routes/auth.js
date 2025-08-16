@@ -20,9 +20,9 @@ router.post("/register", async (req, res) => {
 
     // Use OUTPUT INSERTED.id to get the new ID in SQL Server
     const result = await request.query(`
-      INSERT INTO users (username, email, password)
+      INSERT INTO users (username, email, password,created_at)
       OUTPUT INSERTED.id
-      VALUES (@username, @email, @password)
+      VALUES (@username, @email, @password,GETDATE())
     `);
 
     const userId = result.recordset[0].id;
