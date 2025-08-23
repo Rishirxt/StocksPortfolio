@@ -84,3 +84,4 @@ jobs:
           # with the content of the publish profile from your Azure App Service.
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: ./backend
+
