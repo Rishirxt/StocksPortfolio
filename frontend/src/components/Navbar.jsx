@@ -1,48 +1,66 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient'; 
 
-const Navbar = () => {
-  const navigate = useNavigate();
+function Navbar() {
+    const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login",);
-  };
+    const handleLogout = async () => {
+        const { error } = await supabase.auth.signOut();
+        if (!error) {
+            navigate('/'); // Redirect to login page
+        } else {
+            console.error('Logout Error:', error.message);
+            alert('Failed to log out.');
+        }
+    };
 
-  return (
-    <nav className="bg-white text-gray-800 px-6 py-4 flex justify-between items-center shadow-sm">
-      {/* Logo */}
-      <h1
-        className="text-xl font-bold text-blue-600 cursor-pointer"
-        onClick={() => navigate("/main")}
-      >
-        Capital View
-      </h1>
+    return (
+        <nav className="bg-white shadow-md border-b border-gray-200 sticky top-0 z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between h-16">
+                    {/* Logo/Brand */}
+                    <div className="flex-shrink-0 flex items-center">
+                        <Link to="/home" className="text-2xl font-bold text-gray-800">
+                            Capital<span className="text-indigo-600">View</span>
+                        </Link>
+                    </div>
 
-      {/* Nav links */}
-      <div className="flex items-center space-x-6 text-sm font-medium">
-        <button
-          onClick={() => navigate("/home")}
-          className="hover:text-blue-600 focus:outline-none"
-        >
-          Home
-        </button>
-        <button
-          onClick={() => navigate("/browse")}
-          className="hover:text-blue-600 focus:outline-none"
-        >
-          Browse
-        </button>
-        <button
-          onClick={handleLogout}
-          className="hover:text-red-600 focus:outline-none"
-        >
-          Logout
-        </button>
-      </div>
-    </nav>
-  );
-};
+                    {/* Navigation Links */}
+                    <div className="flex items-center space-x-4">
+                        <Link 
+                            to="/home" 
+                            className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                        >
+                            Dashboard
+                        </Link>
+                        
+                        <Link 
+                            to="/portfolio" 
+                            className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                        >
+                            Portfolios
+                        </Link>
+                        
+                        <Link 
+                            to="/browse-stocks" 
+                            className="text-gray-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                        >
+                            Browse Stocks
+                        </Link>
+
+                        {/* Logout Button */}
+                        <button
+                            onClick={handleLogout}
+                            className="bg-red-500 text-white hover:bg-red-600 px-4 py-1.5 rounded-md text-sm font-medium transition-colors ml-4"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    );
+}
 
 export default Navbar;

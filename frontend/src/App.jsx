@@ -1,44 +1,29 @@
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import BrowseStocks from "./pages/BrowseStocks";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Profile from "./pages/Profile";
+// src/App.jsx
 
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-function AppContent() {
-  const location = useLocation();
-
-  const hideNavbarPaths = ["/", "/login", "/register"]; // Hide navbar on initial load and auth pages
-
-  return (
-    <>
-      {!hideNavbarPaths.includes(location.pathname) && <Navbar />}
-
-      <Routes>
-        {/* Default route shows login page */}
-        <Route path="/" element={<Login />} />
-
-        {/* Main authenticated pages */}
-        <Route path="/home" element={<Home />} />
-        <Route path="/browse" element={<BrowseStocks />} />
-        <Route path="/profile" element={<Profile />} />
-
-        {/* Auth pages */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-
-      </Routes>
-    </>
-  );
-}
-
+// Import your components from the correct path (assuming src/pages/)
+import Login from './pages/Login.jsx';
+import Home from './pages/Home.jsx';             // The Dashboard
+import Portfolio from './pages/Portfolio.jsx';   // The Portfolio Manager
+import BrowseStocks from './pages/BrowseStocks.jsx'; // The Stock Browser
 
 function App() {
   return (
     <Router>
-      <AppContent />
+      <Routes>
+        {/* Public Route: Login/Landing Page */}
+        <Route path="/" element={<Login />} />
+        
+        {/* Authenticated Routes */}
+        <Route path="/home" element={<Home />} />
+        <Route path="/portfolio" element={<Portfolio />} />
+        <Route path="/browse-stocks" element={<BrowseStocks />} />
+        
+        {/* You can add a 404/Not Found route here if desired */}
+        {/* <Route path="*" element={<h1>404 Not Found</h1>} /> */}
+      </Routes>
     </Router>
   );
 }
