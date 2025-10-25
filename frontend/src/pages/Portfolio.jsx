@@ -15,9 +15,11 @@ function Portfolio() {
   const [stocks, setStocks] = useState([]); 
   const [stockToAdd, setStockToAdd] = useState(null);
   const [purchaseDate, setPurchaseDate] = useState("");
-  const [quantity, setQuantity] = useState(1);
-  const [price, setPrice] = useState(0);
+  const [quantity, setQuantity] = useState("");
+  const [price, setPrice] = useState("");
   const [portfolioStocks, setPortfolioStocks] = useState([]);
+  const [availableDates, setAvailableDates] = useState([]);
+  const [latestDate, setLatestDate] = useState("");
 
   // --- AUTHENTICATION & INITIALIZATION ---
   useEffect(() => {
@@ -64,18 +66,52 @@ function Portfolio() {
     fetchPortfolios(userId);
   }, [userId, fetchPortfolios]);
 
-  // Fetch Stocks in Selected Portfolio
+  // Fetch Stocks in Selected Portfolio with Current Prices from stocks_portfolio
   const fetchPortfolioStocks = useCallback(async (portfolioId) => {
     try {
-      const { data, error } = await supabase
+      // First get the portfolio stocks
+      const { data: portfolioStocksData, error } = await supabase
         .from("portfolio_stocks")
-        .select("*") 
+        .select("*")
         .eq("portfolio_id", portfolioId);
 
       if (error) throw error;
-      setPortfolioStocks(data || []);
+
+      if (portfolioStocksData && portfolioStocksData.length > 0) {
+        // Fetch current prices from stocks_portfolio (latest available price for each symbol)
+        const symbols = [...new Set(portfolioStocksData.map(stock => stock.stock_symbol))];
+        
+        const { data: currentPricesData, error: priceError } = await supabase
+          .from("stocks_portfolio")
+          .select("symbol, close")
+          .in("symbol", symbols)
+          .order('trade_date', { ascending: false }) ///given date
+          .limit(symbols.length * 10); // Get recent prices for all symbols
+
+        if (priceError) throw priceError;
+
+        // Get the latest available price for each symbol
+        const currentPriceMap = {};
+        currentPricesData.forEach(stock => {
+          if (!currentPriceMap[stock.symbol]) {
+            currentPriceMap[stock.symbol] = stock.close;
+          }
+        });
+
+        // Combine portfolio data with current prices
+        const stocksWithCurrentPrices = portfolioStocksData.map(stock => ({
+          ...stock,
+          current_price: currentPriceMap[stock.stock_symbol] || stock.price, // Fallback to purchase price
+          market_value: (currentPriceMap[stock.stock_symbol] || stock.price) * stock.quantity
+        }));
+
+        setPortfolioStocks(stocksWithCurrentPrices);
+      } else {
+        setPortfolioStocks([]);
+      }
     } catch (err) {
       console.error("Error fetching portfolio stocks from Supabase:", err);
+      setPortfolioStocks([]);
     }
   }, []);
 
@@ -91,7 +127,7 @@ function Portfolio() {
   const fetchStocks = useCallback(async () => {
     try {
       const { data, error } = await supabase
-        .from("stock_prices") 
+        .from("stocks_portfolio") 
         .select("symbol") 
         .order("symbol", { ascending: true });
 
@@ -102,7 +138,7 @@ function Portfolio() {
 
       setStocks(uniqueSymbols);
     } catch (err) {
-      console.error("Failed to fetch stocks from stock_prices:", err);
+      console.error("Failed to fetch stocks from stocks_portfolio:", err);
     }
   }, []);
 
@@ -112,8 +148,6 @@ function Portfolio() {
     }
   }, [showAddStockModal, stocks.length, fetchStocks]);
   
-  // NOTE: Stock Indexes useEffect has been removed as per the previous fix
-
   // --- HANDLERS ---
 
   // Create Portfolio Logic
@@ -149,19 +183,83 @@ function Portfolio() {
     }
   };
 
-  // Add Stock Logic
+  // Fetch available dates when stock is selected
+  const handleStockSelect = async (selectedSymbol) => {
+    const selected = stocks.find((s) => s.symbol === selectedSymbol);
+    setStockToAdd(selected);
+    
+    if (selected) {
+      try {
+        // Fetch available dates for this stock
+        const { data: datesData, error } = await supabase
+          .from("stocks_portfolio")
+          .select("trade_date")
+          .eq("symbol", selected.symbol)
+          .order("trade_date", { ascending: false })
+          .limit(10); // Get last 10 available dates
+
+        if (!error && datesData) {
+          setAvailableDates(datesData.map(item => item.trade_date));
+          if (datesData.length > 0) {
+            setLatestDate(datesData[0].trade_date);
+            // Auto-set the purchase date to the latest available date
+            setPurchaseDate(datesData[0].trade_date);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching available dates:", err);
+      }
+    } else {
+      setAvailableDates([]);
+      setLatestDate("");
+      setPurchaseDate("");
+    }
+  };
+
+  // Add Stock Logic with Date Validation and Latest Date Info
   const handleAddStock = async () => {
     if (!selectedPortfolio || !stockToAdd || !purchaseDate || !quantity || !price) {
       alert("Missing stock or details.");
       return;
     }
+
     try {
+      // Validate that the purchase date exists in stocks_portfolio for this symbol
+      const { data: stockData, error: validationError } = await supabase
+        .from("stocks_portfolio")
+        .select("trade_date")
+        .eq("symbol", stockToAdd.symbol)
+        .eq("trade_date", purchaseDate)
+        .single();
+
+      if (validationError || !stockData) {
+        // Get the latest available date for this stock
+        const { data: latestDateData, error: latestDateError } = await supabase
+          .from("stocks_portfolio")
+          .select("trade_date")
+          .eq("symbol", stockToAdd.symbol)
+          .order("trade_date", { ascending: false })
+          .limit(1)
+          .single();
+
+        let errorMessage = `No stock data available for ${stockToAdd.symbol} on ${purchaseDate}.`;
+        
+        if (latestDateData && !latestDateError) {
+          errorMessage += ` The latest available date is ${latestDateData.trade_date}.`;
+        } else {
+          errorMessage += " Please select a valid trading date.";
+        }
+        
+        alert(errorMessage);
+        return;
+      }
+
       const newStockData = {
-          portfolio_id: selectedPortfolio.id,
-          stock_symbol: stockToAdd.symbol,
-          purchase_date: purchaseDate,
-          quantity: Number(quantity),
-          price: Number(price),
+        portfolio_id: selectedPortfolio.id,
+        stock_symbol: stockToAdd.symbol,
+        purchase_date: purchaseDate,
+        quantity: Number(quantity),
+        price: Number(price),
       };
 
       const { data, error } = await supabase
@@ -172,13 +270,16 @@ function Portfolio() {
       if (error) throw error;
       
       alert("Stock added successfully!");
-      setPortfolioStocks((prev) => [...prev, data[0]]);
+      // Refresh the portfolio stocks to include the new stock with current prices
+      fetchPortfolioStocks(selectedPortfolio.id);
       
       // Reset form fields
       setStockToAdd(null);
       setPurchaseDate("");
-      setQuantity(1);
-      setPrice(0);
+      setQuantity("");
+      setPrice("");
+      setAvailableDates([]);
+      setLatestDate("");
       setShowAddStockModal(false);
     } catch (err) {
       console.error("Error adding stock to Supabase:", err.message || err);
@@ -190,6 +291,10 @@ function Portfolio() {
       // Navigate back to the dashboard
       navigate("/home"); 
   }
+
+  // Calculate portfolio totals
+  const totalInvestedValue = portfolioStocks.reduce((sum, stock) => sum + (stock.price * stock.quantity), 0);
+  const totalMarketValue = portfolioStocks.reduce((sum, stock) => sum + (stock.market_value || stock.price * stock.quantity), 0);
 
   // --- UI RENDERING ---
   return (
@@ -314,7 +419,7 @@ function Portfolio() {
                         <div>
                           <p className="text-sm font-medium text-green-600">Invested Value</p>
                           <p className="text-2xl font-bold text-green-900">
-                            ₹{portfolioStocks.reduce((sum, stock) => sum + (stock.price * stock.quantity), 0).toFixed(2)}
+                            ₹{totalInvestedValue.toFixed(2)}
                           </p>
                         </div>
                         <div className="p-2 bg-green-200 rounded-lg">
@@ -330,7 +435,7 @@ function Portfolio() {
                         <div>
                           <p className="text-sm font-medium text-purple-600">Market Value</p>
                           <p className="text-2xl font-bold text-purple-900">
-                            ₹{portfolioStocks.reduce((sum, stock) => sum + (stock.price * stock.quantity), 0).toFixed(2)}
+                            ₹{totalMarketValue.toFixed(2)}
                           </p>
                         </div>
                         <div className="p-2 bg-purple-200 rounded-lg">
@@ -405,10 +510,10 @@ function Portfolio() {
                               </td>
                               <td className="px-6 py-4 text-gray-700">{stock.purchase_date}</td>
                               <td className="px-6 py-4 text-gray-700">{stock.quantity}</td>
-                              <td className="px-6 py-4 text-gray-700">₹{stock.price}</td>
+                              <td className="px-6 py-4 text-gray-700">₹{stock.price.toFixed(2)}</td>
                               <td className="px-6 py-4 text-gray-700">₹{(stock.price * stock.quantity).toFixed(2)}</td>
-                              <td className="px-6 py-4 text-gray-700">₹{stock.price}</td>
-                              <td className="px-6 py-4 text-gray-700">₹{(stock.price * stock.quantity).toFixed(2)}</td>
+                              <td className="px-6 py-4 text-gray-700">₹{(stock.current_price || stock.price).toFixed(2)}</td>
+                              <td className="px-6 py-4 text-gray-700">₹{(stock.market_value || stock.price * stock.quantity).toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -487,41 +592,66 @@ function Portfolio() {
       {/* Add Stock Modal */}
       {showAddStockModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl w-[32rem] max-w-md mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center mb-6">
-              <div className="p-2 bg-green-100 rounded-lg mr-3">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
+          <div className="bg-white p-8 rounded-2xl shadow-2xl w-[36rem] max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center">
+                <div className="p-2 bg-green-100 rounded-lg mr-3">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Add Stock to Portfolio</h2>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Add Stock</h2>
+              <button 
+                onClick={() => {
+                  setShowAddStockModal(false);
+                  setStockToAdd(null);
+                  setPurchaseDate("");
+                  setQuantity("");
+                  setPrice("");
+                  setAvailableDates([]);
+                  setLatestDate("");
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
             
-            <div className="mb-4">
-              <p className="text-gray-600">Adding to: <span className="font-semibold text-indigo-600">{selectedPortfolio?.name}</span></p>
+            <div className="mb-6 p-4 bg-indigo-50 rounded-xl border border-indigo-100">
+              <p className="text-indigo-800 text-sm">
+                <span className="font-semibold">Portfolio:</span> {selectedPortfolio?.name}
+              </p>
             </div>
             
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Select Stock</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Stock Selection */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Stock Symbol <span className="text-red-500">*</span>
+                </label>
                 <select
-                  onChange={(e) =>
-                    setStockToAdd(stocks.find((s) => s.symbol === e.target.value))
-                  }
+                  onChange={(e) => handleStockSelect(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   defaultValue=""
                 >
-                  <option value="" disabled>Choose a stock symbol</option>
+                  <option value="" disabled>Search and select a stock...</option>
                   {stocks.map((stock) => (
                     <option key={stock.symbol} value={stock.symbol}>
                       {stock.symbol}
                     </option>
                   ))}
                 </select>
+                <p className="text-xs text-gray-500 mt-1">Choose from available stock symbols</p>
               </div>
               
+              {/* Purchase Date */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Purchase Date</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Purchase Date <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="date"
                   value={purchaseDate}
@@ -529,46 +659,108 @@ function Portfolio() {
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   max={new Date().toISOString().split("T")[0]}
                 />
+                {latestDate && (
+                  <p className="text-xs text-green-600 mt-1">
+                    Latest available date: <span className="font-semibold">{latestDate}</span>
+                  </p>
+                )}
+                {availableDates.length > 0 && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Available dates: {availableDates.slice(0, 3).join(', ')}
+                    {availableDates.length > 3 && ` and ${availableDates.length - 3} more...`}
+                  </p>
+                )}
               </div>
               
+              {/* Quantity */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Quantity</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Quantity <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="number"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  placeholder="Number of shares"
+                  placeholder="Enter number of shares"
                   min="1"
                 />
+                <p className="text-xs text-gray-500 mt-1">Number of shares purchased</p>
               </div>
               
+              {/* Purchase Price */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Purchase Price (₹)</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Purchase Price (₹) <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="number"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  placeholder="Price per share"
+                  placeholder="Enter price per share"
                   min="0"
                   step="0.01"
                 />
+                <p className="text-xs text-gray-500 mt-1">Price per share when purchased</p>
               </div>
+              
+              {/* Investment Summary */}
+              {quantity && price && (
+                <div className="md:col-span-2 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                  <h3 className="font-semibold text-gray-700 mb-2">Investment Summary</h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Total Investment:</span>
+                    </div>
+                    <div className="text-right font-semibold text-green-600">
+                      ₹{(parseFloat(quantity || 0) * parseFloat(price || 0)).toFixed(2)}
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Shares:</span>
+                    </div>
+                    <div className="text-right font-semibold text-gray-700">
+                      {quantity} {parseInt(quantity) === 1 ? 'share' : 'shares'}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            {/* Required Fields Note */}
+            <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+              <p className="text-xs text-yellow-700 flex items-center">
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                Fields marked with <span className="text-red-500 mx-1">*</span> are required
+              </p>
             </div>
             
             <div className="flex justify-end space-x-3 mt-8">
               <button
-                className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl font-semibold transition-colors"
-                onClick={() => setShowAddStockModal(false)}
+                className="px-6 py-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl font-semibold transition-colors border border-gray-300"
+                onClick={() => {
+                  setShowAddStockModal(false);
+                  setStockToAdd(null);
+                  setPurchaseDate("");
+                  setQuantity("");
+                  setPrice("");
+                  setAvailableDates([]);
+                  setLatestDate("");
+                }}
               >
                 Cancel
               </button>
               <button
-                className="px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl"
+                className="px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl flex items-center disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handleAddStock}
+                disabled={!stockToAdd || !purchaseDate || !quantity || !price}
               >
-                Add Stock
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Add Stock to Portfolio
               </button>
             </div>
           </div>
