@@ -47,8 +47,8 @@ export default function Login() {
 
         {/* Welcome Message */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h2>
-          <p className="text-gray-600">Sign in to access your portfolio and track your investments</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to CapitalView</h2>
+          <p className="text-gray-600">Sign in with Google to access your portfolio and manage your investments</p>
         </div>
 
         {/* Google Login Button */}
