@@ -1,1 +1,1 @@
-export const API_BASE_URL = "https://portfolio-backend-api123.azurewebsites.net";
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";

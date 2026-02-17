@@ -17,7 +17,7 @@ const BrowseStocks = () => {
         setLoading(true);
         setError(null);
         try {
-            const res = await fetch("http://localhost:5000/latest-bse");
+            const res = await fetch(`${import.meta.env.VITE_API_URL}/latest-bse`);
             if (!res.ok) throw new Error("Failed to fetch latest stocks");
             const data = await res.json();
             
@@ -46,7 +46,7 @@ const BrowseStocks = () => {
         setRefreshing(true);
         setError(null);
         try {
-            await fetch("http://localhost:5000/refresh-bse");
+            await fetch(`${import.meta.env.VITE_API_URL}/refresh-bse`);
             await fetchLatestStocks();
         } catch (err) {
             console.error("Error refreshing stocks:", err);
