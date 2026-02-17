@@ -73,17 +73,22 @@ const BrowseStocks = () => {
     const handlePrev = () => { if (currentPage > 1) setCurrentPage(prev => prev - 1); };
 
     // Calculate price change and percentage
+    // CAPITAL MARKETS LOGIC:
+    // Price Change: Close Price - Open Price (intraday movement)
+    // Percentage Change: (Change / Open) * 100 (percentage movement from open)
+    // RED = Negative (Loss) | GREEN = Positive (Gain)
     const calculatePriceChange = (stock) => {
         const open = stock.open_price || stock.open || 0;
         const close = stock.close_price || stock.close || 0;
-        const change = close - open;
+        const change = close - open;  // Daily P&L in rupees
         const percentChange = open > 0 ? ((change / open) * 100).toFixed(2) : 0;
         return { change, percentChange };
     };
 
-    // Format volume
+    // Format volume with proper scale
+    // 1M = 1,000,000 shares | 1K = 1,000 shares
     const formatVolume = (volume) => {
-        if (!volume) return '0';
+        if (!volume || volume === 0) return 'N/A';  // Show N/A instead of 0
         if (volume >= 1000000) {
             return (volume / 1000000).toFixed(1) + 'M';
         } else if (volume >= 1000) {
@@ -221,14 +226,21 @@ const BrowseStocks = () => {
                                             </div>
 
                                             {/* Volume and Date */}
-                                            <div className="mt-3 flex justify-between text-xs text-gray-500">
-                                                <span>{stock.trade_date ? new Date(stock.trade_date).toLocaleDateString() : 'N/A'}</span>
+                                            <div className="mt-4 space-y-2 text-xs text-gray-500">
+                                                <div className="flex justify-between items-center px-2 py-2 bg-blue-50 rounded-lg">
+                                                    <span className="text-blue-600 font-medium">Volume</span>
+                                                    <span className="font-semibold text-blue-700">{formatVolume(volume)}</span>
+                                                </div>
+                                                <div className="flex justify-between items-center px-2 py-2 bg-gray-50 rounded-lg">
+                                                    <span>Last Updated</span>
+                                                    <span className="font-semibold">{stock.trade_date ? new Date(stock.trade_date).toLocaleDateString() : 'N/A'}</span>
+                                                </div>
                                             </div>
 
                                             {/* View Details Button */}
                                             <button
                                                 onClick={() => setSelectedStock(stock)}
-                                                className="w-full mt-3 bg-indigo-50 text-indigo-600 py-2 rounded-lg hover:bg-indigo-100 transition-colors font-medium text-xs"
+                                                className="w-full mt-4 bg-indigo-50 text-indigo-600 py-2 rounded-lg hover:bg-indigo-100 transition-colors font-medium text-xs border border-indigo-200"
                                             >
                                                 View Details
                                             </button>
@@ -315,50 +327,83 @@ const BrowseStocks = () => {
                                     const { change, percentChange } = calculatePriceChange(selectedStock);
                                     const isPositive = change >= 0;
                                     return (
-                                        <div className={`text-lg font-semibold ${
-                                            isPositive ? 'text-green-600' : 'text-red-600'
-                                        }`}>
-                                            {isPositive ? '+' : ''}₹{Math.abs(change).toFixed(2)} ({isPositive ? '+' : ''}{percentChange}%)
+                                        <div>
+                                            <div className={`text-lg font-semibold ${
+                                                isPositive ? 'text-green-600' : 'text-red-600'
+                                            }`}>
+                                                {isPositive ? '▲' : '▼'} {isPositive ? '+' : ''}₹{Math.abs(change).toFixed(2)} ({isPositive ? '+' : ''}{percentChange}%)
+                                            </div>
+                                            <div className="text-xs text-gray-500 mt-1">
+                                                <p>Intraday Movement: Close Price vs Open Price</p>
+                                                <p className="text-xs text-gray-400">RED = Loss (Close &lt; Open) | GREEN = Gain (Close &gt; Open)</p>
+                                            </div>
                                         </div>
                                     );
                                 })()}
                             </div>
 
                             {/* Detailed Price Info */}
-                            <div className="space-y-3">
+                            <div className="space-y-3 mb-6">
+                                {/* OHLC Data - Standard market metrics */}
+                                <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-xs text-blue-700 mb-3">
+                                    <div className="font-semibold mb-2">📊 OHLC Data (Daily Trading Range)</div>
+                                    <ul className="text-xs space-y-1">
+                                        <li>• <strong>Open</strong>: Price at market open</li>
+                                        <li>• <strong>High</strong>: Highest price during the day</li>
+                                        <li>• <strong>Low</strong>: Lowest price during the day</li>
+                                        <li>• <strong>Close</strong>: Final price at market close</li>
+                                    </ul>
+                                </div>
+
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-gray-50 p-3 rounded-xl">
-                                        <div className="text-gray-500 text-sm">Open</div>
-                                        <div className="text-lg font-semibold">₹{(selectedStock.open_price || selectedStock.open || 0).toFixed(2)}</div>
+                                    <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
+                                        <div className="text-gray-500 text-xs font-medium">OPEN</div>
+                                        <div className="text-lg font-semibold text-gray-800">₹{(selectedStock.open_price || selectedStock.open || 0).toFixed(2)}</div>
+                                        <div className="text-xs text-gray-400 mt-1">Market Open Price</div>
                                     </div>
-                                    <div className="bg-gray-50 p-3 rounded-xl">
-                                        <div className="text-gray-500 text-sm">Close</div>
-                                        <div className="text-lg font-semibold">₹{(selectedStock.close_price || selectedStock.close || 0).toFixed(2)}</div>
+                                    <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
+                                        <div className="text-gray-500 text-xs font-medium">CLOSE</div>
+                                        <div className="text-lg font-semibold text-gray-800">₹{(selectedStock.close_price || selectedStock.close || 0).toFixed(2)}</div>
+                                        <div className="text-xs text-gray-400 mt-1">Market Close Price</div>
                                     </div>
                                 </div>
                                 
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-green-50 p-3 rounded-xl">
-                                        <div className="text-green-600 text-sm">High</div>
+                                    <div className="bg-green-50 p-3 rounded-xl border border-green-200">
+                                        <div className="text-green-600 text-xs font-medium">HIGH</div>
                                         <div className="text-lg font-semibold text-green-700">₹{(selectedStock.high_price || selectedStock.high || 0).toFixed(2)}</div>
+                                        <div className="text-xs text-green-600 mt-1">Peak Price</div>
                                     </div>
-                                    <div className="bg-red-50 p-3 rounded-xl">
-                                        <div className="text-red-600 text-sm">Low</div>
+                                    <div className="bg-red-50 p-3 rounded-xl border border-red-200">
+                                        <div className="text-red-600 text-xs font-medium">LOW</div>
                                         <div className="text-lg font-semibold text-red-700">₹{(selectedStock.low_price || selectedStock.low || 0).toFixed(2)}</div>
+                                        <div className="text-xs text-red-600 mt-1">Bottom Price</div>
                                     </div>
                                 </div>
 
-                                <div className="bg-blue-50 p-3 rounded-xl">
-                                    <div className="text-blue-600 text-sm">Volume</div>
-                                    <div className="text-lg font-semibold text-blue-700">
+                                {/* Volume and Trade Info */}
+                                <div className="bg-blue-50 p-3 rounded-xl border border-blue-200">
+                                    <div className="text-blue-600 text-xs font-medium">📈 VOLUME</div>
+                                    <div className="text-lg font-semibold text-blue-700 mt-1">
                                         {formatVolume(selectedStock.volume || selectedStock.totaltrades)}
                                     </div>
+                                    <div className="text-xs text-blue-600 mt-1">
+                                        Total shares traded during the day
+                                    </div>
                                 </div>
 
-                                <div className="bg-gray-50 p-3 rounded-xl">
-                                    <div className="text-gray-500 text-sm">Trade Date</div>
-                                    <div className="text-lg font-semibold">
-                                        {selectedStock.trade_date ? new Date(selectedStock.trade_date).toLocaleDateString() : 'N/A'}
+                                <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
+                                    <div className="text-gray-600 text-xs font-medium">🗓 LAST UPDATED</div>
+                                    <div className="text-lg font-semibold text-gray-800 mt-1">
+                                        {selectedStock.trade_date ? new Date(selectedStock.trade_date).toLocaleDateString('en-IN', { 
+                                            weekday: 'short',
+                                            year: 'numeric', 
+                                            month: 'short', 
+                                            day: 'numeric' 
+                                        }) : 'N/A'}
+                                    </div>
+                                    <div className="text-xs text-gray-600 mt-1">
+                                        Data as of market close
                                     </div>
                                 </div>
                             </div>

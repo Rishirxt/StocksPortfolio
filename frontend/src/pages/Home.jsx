@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "../supabaseClient"; 
 import Navbar from '../components/Navbar'; 
 
 function Home() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [portfolios, setPortfolios] = useState([]);
     const [portfolioDetails, setPortfolioDetails] = useState([]);
     const [userId, setUserId] = useState(null);
@@ -98,6 +99,13 @@ function Home() {
         }
     }, [userId, fetchPortfolios]);
 
+    // Refresh portfolios when navigating back to Home
+    useEffect(() => {
+        if (userId && location.pathname === '/home') {
+            fetchPortfolios(userId);
+        }
+    }, [location.pathname, userId, fetchPortfolios]);
+
     // --- HANDLERS ---
     const handlePortfolioClick = (portfolioId) => {
         navigate("/portfolio"); 
@@ -107,6 +115,10 @@ function Home() {
         navigate("/portfolio");
     };
     // Calculate totals and performance metrics
+    // Total Portfolios: Number of active investment portfolios
+    // Total Stocks: Sum of all stock holdings across all portfolios
+    // Total Invested Value: Sum of (Purchase Price × Quantity) across all holdings
+    // Average Portfolio Value: Total Investment / Number of Portfolios
     const totalPortfolios = portfolios.length;
     const totalStocks = portfolioDetails.reduce((sum, portfolio) => sum + portfolio.stocksCount, 0);
     const totalInvestedValue = portfolioDetails.reduce((sum, portfolio) => sum + portfolio.investedValue, 0);
