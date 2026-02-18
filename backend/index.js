@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  origin: process.env.FRONTEND_URL || "https://stocksportfolio.vercel.app",
   credentials: true
 }));
 app.use(express.json());
@@ -19,7 +19,7 @@ app.use(express.json());
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 // Top 100 BSE Stocks (exact names from CSV)
-const   TOP_100_STOCKS = [
+const TOP_100_STOCKS = [
   "LG Electronics India Limited",
   "Nippon India Mutual Fund - Per",
   "TATA INVESTMENT CORPORATION LT",
