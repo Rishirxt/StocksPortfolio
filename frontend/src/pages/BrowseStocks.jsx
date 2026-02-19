@@ -17,9 +17,11 @@ const BrowseStocks = () => {
         setLoading(true);
         setError(null);
         try {
+            console.log("Current API URL:", process.env.REACT_APP_API_URL);
             console.log("Fetching from:", `${process.env.REACT_APP_API_URL}/latest-bse`);
             const res = await fetch(`${process.env.REACT_APP_API_URL}/latest-bse`);
-            if (!res.ok) throw new Error("Failed to fetch latest stocks");
+            console.log("Response status:", res.status);
+            if (!res.ok) throw new Error(`Failed to fetch latest stocks: ${res.status} ${res.statusText}`);
             const data = await res.json();
 
             // Debug: Check what data we're receiving

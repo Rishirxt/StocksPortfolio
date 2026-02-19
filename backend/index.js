@@ -21,11 +21,12 @@ app.use(cors({
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
       callback(null, true);
     } else {
-      console.log("Blocked by CORS:", origin); // Helpful for debugging
-      callback(new Error('Not allowed by CORS'));
+      console.log("Blocked by CORS:", origin);
+      // Temporarily allow all for debugging if needed, but for now just log it
+      callback(new Error(`Not allowed by CORS: ${origin}`));
     }
   },
   credentials: true
