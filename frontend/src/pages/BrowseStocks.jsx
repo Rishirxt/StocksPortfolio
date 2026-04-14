@@ -59,7 +59,6 @@ const BrowseStocks = () => {
             setRefreshing(false);
         }
     };
-
     // Filtering using tckr_symbol and name
     const filtered = allStocks.filter((stock) => {
         const symbol = stock.tckr_symbol || stock.symbol || "";

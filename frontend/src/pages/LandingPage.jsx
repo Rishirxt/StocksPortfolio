@@ -92,13 +92,6 @@ export default function LandingPage() {
                     </span>
                 </div>
 
-                {/* Nav links */}
-                <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-                    {["Features", "Pricing", "About"].map((link) => (
-                        <a key={link} href="#" className="hover:text-indigo-600 transition-colors duration-150">{link}</a>
-                    ))}
-                </div>
-
                 {/* Sign In button */}
                 <button
                     onClick={() => setShowLogin(true)}
@@ -116,7 +109,7 @@ export default function LandingPage() {
                 {/* Badge */}
                 <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur border border-indigo-100 text-indigo-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-8 shadow-sm">
                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                    Real-time market data · Always on
+                    Real-time Nifty 50 market data · Always on
                 </div>
 
                 {/* Headline */}
@@ -138,7 +131,7 @@ export default function LandingPage() {
                 </h1>
 
                 <p className="text-lg md:text-xl text-gray-500 max-w-xl mb-10 leading-relaxed">
-                    CapitalView unifies all your portfolios into one elegant dashboard — live prices, deep analytics, zero noise.
+                    CapitalView unifies all your portfolios into one elegant dashboard — featuring live prices for Nifty 50 stocks, deep analytics, and zero noise.
                 </p>
 
                 {/* CTA buttons */}
@@ -273,7 +266,7 @@ export default function LandingPage() {
                         </button>
 
                         <div className="mt-8 pt-6 border-t border-gray-100 space-y-3">
-                            {["Track multiple portfolios", "Real-time market data", "Secure cloud storage"].map((f) => (
+                            {["Track multiple portfolios", "Real-time Nifty 50 data", "Secure cloud storage"].map((f) => (
                                 <div key={f} className="flex items-center text-sm text-gray-600">
                                     <svg className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

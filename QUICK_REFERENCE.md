@@ -487,12 +487,3 @@ Keep adding stocks to see:
 - Current market value
 - Overall portfolio gain/loss
 ```
-
----
-
-**Version**: 1.0  
-**Last Updated**: February 17, 2026  
-**Status**: ✅ Production Ready  
-
-**Quick Links**:
-- 🌐 [Live App](http://localhost:3000)
