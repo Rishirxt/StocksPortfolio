@@ -9,6 +9,8 @@ import Login from './pages/Login.jsx';
 import Home from './pages/Home.jsx';             // The Dashboard
 import Portfolio from './pages/Portfolio.jsx';   // The Portfolio Manager
 import BrowseStocks from './pages/BrowseStocks.jsx'; // The Stock Browser
+import TerminalUI from './pages/TerminalUI.jsx'; // The new UI
+
 
 function App() {
   return (
@@ -22,6 +24,9 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/browse-stocks" element={<BrowseStocks />} />
+
+        {/* New Terminal UI Preview */}
+        <Route path="/terminal" element={<TerminalUI />} />
 
         {/* You can add a 404/Not Found route here if desired */}
         {/* <Route path="*" element={<h1>404 Not Found</h1>} /> */}
