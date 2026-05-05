@@ -10,6 +10,7 @@ import Home from './pages/Home.jsx';             // The Dashboard
 import Portfolio from './pages/Portfolio.jsx';   // The Portfolio Manager
 import BrowseStocks from './pages/BrowseStocks.jsx'; // The Stock Browser
 import TerminalUI from './pages/TerminalUI.jsx'; // The new UI
+import './App.css';
 
 
 function App() {

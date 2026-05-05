@@ -1,0 +1,53 @@
+/* ================================================================
+   CapitalView – Global Design System
+   Unified dark-theme financial terminal aesthetic
+   ================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --cv-bg:         #0b0f19;
+  --cv-surface:    #111827;
+  --cv-surface-2:  #1e2536;
+  --cv-elevated:   #263046;
+  --cv-border:     rgba(255, 255, 255, 0.08);
+  --cv-border-hover: rgba(255, 255, 255, 0.16);
+  --cv-accent:     #6366f1;
+  --cv-accent-hover: #818cf8;
+  --cv-green:      #22c55e;
+  --cv-green-dim:  rgba(34, 197, 94, 0.15);
+  --cv-red:        #ef4444;
+  --cv-red-dim:    rgba(239, 68, 68, 0.15);
+  --cv-text:       #f1f5f9;
+  --cv-text-2:     #94a3b8;
+  --cv-text-3:     #64748b;
+  --cv-radius:     12px;
+  --cv-radius-sm:  8px;
+  --cv-shadow:     0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--cv-bg);
+  color: var(--cv-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Remove default focus outlines, add custom */
+:focus-visible {
+  outline: 2px solid var(--cv-accent);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--cv-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--cv-text-3); }

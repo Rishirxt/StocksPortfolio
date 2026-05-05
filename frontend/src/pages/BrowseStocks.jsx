@@ -103,16 +103,17 @@ const BrowseStocks = () => {
     return (
         <>
             <Navbar />
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+            <div className="min-h-screen bg-slate-950 text-slate-200">
                 {/* Header */}
-                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-12">
-                    <div className="max-w-7xl mx-auto px-6 text-center">
-                        <h1 className="text-4xl font-bold mb-4">Stock Market Browser</h1>
-                        <p className="text-xl opacity-90 mb-4">Explore and analyze stocks with real-time data</p>
+                <div className="relative overflow-hidden bg-gradient-to-b from-indigo-900/20 to-slate-950 pt-16 pb-12 border-b border-white/5">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+                    <div className="max-w-7xl mx-auto px-6 text-center relative z-10">
+                        <h1 className="text-4xl font-bold text-white mb-4">Stock Market Browser</h1>
+                        <p className="text-lg text-slate-400 mb-6">Explore and analyze stocks with real-time data</p>
                         <button
                             onClick={handleRefresh}
                             disabled={refreshing}
-                            className="bg-white text-indigo-600 px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors font-semibold shadow-lg"
+                            className="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-500 transition-all font-semibold shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] disabled:opacity-50"
                         >
                             {refreshing ? "Refreshing..." : "Refresh Latest Stocks"}
                         </button>
@@ -131,28 +132,28 @@ const BrowseStocks = () => {
                                 setSearch(e.target.value);
                                 setCurrentPage(1);
                             }}
-                            className="w-full max-w-2xl mx-auto block p-4 border border-gray-300 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm text-lg"
+                            className="w-full max-w-2xl mx-auto block p-4 bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-lg text-white placeholder-slate-500 transition-all"
                         />
                     </div>
 
                     {/* Loading and Error States */}
                     {loading && (
                         <div className="text-center py-12">
-                            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mx-auto"></div>
-                            <p className="mt-4 text-gray-600 text-lg">Loading stocks data...</p>
+                            <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
+                            <p className="mt-4 text-slate-400 text-lg">Loading stocks data...</p>
                         </div>
                     )}
 
                     {error && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-xl mb-6 text-center max-w-2xl mx-auto">
+                        <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-6 py-4 rounded-xl mb-6 text-center max-w-2xl mx-auto">
                             {error}
                         </div>
                     )}
 
                     {/* Results Count */}
                     {!loading && filtered.length > 0 && (
-                        <div className="mb-6 text-gray-600 text-center">
-                            <span className="bg-white px-4 py-2 rounded-full shadow-sm">
+                        <div className="mb-6 text-slate-400 text-center">
+                            <span className="bg-white/5 backdrop-blur-md border border-white/10 px-4 py-2 rounded-full text-sm">
                                 Found {filtered.length} stocks • Page {currentPage} of {totalPages}
                             </span>
                         </div>
@@ -176,19 +177,19 @@ const BrowseStocks = () => {
                                     return (
                                         <div
                                             key={index}
-                                            className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100"
+                                            className="bg-slate-900/50 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden hover:border-indigo-500/30 transition-all duration-300 hover:-translate-y-1"
                                         >
                                             {/* Stock Header */}
-                                            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 text-white">
+                                            <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-4 border-b border-white/5">
                                                 <div className="flex justify-between items-center">
-                                                    <h3 className="text-xl font-bold">{symbol}</h3>
-                                                    <div className={`px-2 py-1 rounded-full text-xs font-semibold ${isPositive ? 'bg-green-500' : 'bg-red-500'
+                                                    <h3 className="text-xl font-bold text-white">{symbol}</h3>
+                                                    <div className={`px-2.5 py-1 rounded-full text-xs font-semibold ${isPositive ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
                                                         }`}>
                                                         {isPositive ? '+' : ''}{percentChange}%
                                                     </div>
                                                 </div>
                                                 {/* Company name as subtle text */}
-                                                <p className="text-indigo-100 text-xs opacity-80 mt-1 truncate">
+                                                <p className="text-slate-400 text-xs mt-1 truncate">
                                                     {name}
                                                 </p>
                                             </div>
@@ -197,10 +198,10 @@ const BrowseStocks = () => {
                                             <div className="p-4">
                                                 {/* Current Price */}
                                                 <div className="text-center mb-4">
-                                                    <div className="text-2xl font-bold text-gray-800">
+                                                    <div className="text-2xl font-bold text-white">
                                                         ₹{close.toFixed(2)}
                                                     </div>
-                                                    <div className={`text-sm font-medium ${isPositive ? 'text-green-600' : 'text-red-600'
+                                                    <div className={`text-sm font-medium ${isPositive ? 'text-emerald-400' : 'text-red-400'
                                                         }`}>
                                                         {isPositive ? '+' : ''}₹{Math.abs(change).toFixed(2)}
                                                     </div>
@@ -208,40 +209,40 @@ const BrowseStocks = () => {
 
                                                 {/* Price Grid */}
                                                 <div className="grid grid-cols-2 gap-2 text-xs">
-                                                    <div className="text-center p-2 bg-gray-50 rounded-lg">
-                                                        <div className="text-gray-500">Open</div>
-                                                        <div className="font-semibold">₹{open.toFixed(2)}</div>
+                                                    <div className="text-center p-2 bg-white/5 rounded-lg">
+                                                        <div className="text-slate-500">Open</div>
+                                                        <div className="font-semibold text-slate-300">₹{open.toFixed(2)}</div>
                                                     </div>
-                                                    <div className="text-center p-2 bg-gray-50 rounded-lg">
-                                                        <div className="text-gray-500">Close</div>
-                                                        <div className="font-semibold">₹{close.toFixed(2)}</div>
+                                                    <div className="text-center p-2 bg-white/5 rounded-lg">
+                                                        <div className="text-slate-500">Close</div>
+                                                        <div className="font-semibold text-slate-300">₹{close.toFixed(2)}</div>
                                                     </div>
-                                                    <div className="text-center p-2 bg-green-50 rounded-lg">
-                                                        <div className="text-green-600">High</div>
-                                                        <div className="font-semibold text-green-700">₹{high.toFixed(2)}</div>
+                                                    <div className="text-center p-2 bg-emerald-500/10 rounded-lg">
+                                                        <div className="text-emerald-500">High</div>
+                                                        <div className="font-semibold text-emerald-400">₹{high.toFixed(2)}</div>
                                                     </div>
-                                                    <div className="text-center p-2 bg-red-50 rounded-lg">
-                                                        <div className="text-red-600">Low</div>
-                                                        <div className="font-semibold text-red-700">₹{low.toFixed(2)}</div>
+                                                    <div className="text-center p-2 bg-red-500/10 rounded-lg">
+                                                        <div className="text-red-500">Low</div>
+                                                        <div className="font-semibold text-red-400">₹{low.toFixed(2)}</div>
                                                     </div>
                                                 </div>
 
                                                 {/* Volume and Date */}
-                                                <div className="mt-4 space-y-2 text-xs text-gray-500">
-                                                    <div className="flex justify-between items-center px-2 py-2 bg-blue-50 rounded-lg">
-                                                        <span className="text-blue-600 font-medium">Volume</span>
-                                                        <span className="font-semibold text-blue-700">{formatVolume(volume)}</span>
+                                                <div className="mt-4 space-y-2 text-xs">
+                                                    <div className="flex justify-between items-center px-2 py-2 bg-indigo-500/10 rounded-lg">
+                                                        <span className="text-indigo-400 font-medium">Volume</span>
+                                                        <span className="font-semibold text-indigo-300">{formatVolume(volume)}</span>
                                                     </div>
-                                                    <div className="flex justify-between items-center px-2 py-2 bg-gray-50 rounded-lg">
-                                                        <span>Last Updated</span>
-                                                        <span className="font-semibold">{stock.trade_date ? new Date(stock.trade_date).toLocaleDateString() : 'N/A'}</span>
+                                                    <div className="flex justify-between items-center px-2 py-2 bg-white/5 rounded-lg">
+                                                        <span className="text-slate-500">Last Updated</span>
+                                                        <span className="font-semibold text-slate-400">{stock.trade_date ? new Date(stock.trade_date).toLocaleDateString() : 'N/A'}</span>
                                                     </div>
                                                 </div>
 
                                                 {/* View Details Button */}
                                                 <button
                                                     onClick={() => setSelectedStock(stock)}
-                                                    className="w-full mt-4 bg-indigo-50 text-indigo-600 py-2 rounded-lg hover:bg-indigo-100 transition-colors font-medium text-xs border border-indigo-200"
+                                                    className="w-full mt-4 bg-white/5 border border-white/10 text-indigo-400 py-2 rounded-lg hover:bg-white/10 transition-colors font-medium text-xs"
                                                 >
                                                     View Details
                                                 </button>
@@ -256,17 +257,17 @@ const BrowseStocks = () => {
                                 <button
                                     onClick={handlePrev}
                                     disabled={currentPage === 1}
-                                    className="px-6 py-3 bg-gray-100 rounded-xl hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                                    className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium text-slate-300"
                                 >
                                     ← Previous
                                 </button>
-                                <span className="text-gray-600 font-medium">
+                                <span className="text-slate-400 font-medium">
                                     Page {currentPage} of {totalPages}
                                 </span>
                                 <button
                                     onClick={handleNext}
                                     disabled={currentPage === totalPages}
-                                    className="px-6 py-3 bg-gray-100 rounded-xl hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                                    className="px-6 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium text-slate-300"
                                 >
                                     Next →
                                 </button>
@@ -277,21 +278,21 @@ const BrowseStocks = () => {
                     {/* No Results */}
                     {!loading && filtered.length === 0 && allStocks.length > 0 && (
                         <div className="text-center py-12">
-                            <div className="text-gray-400 text-6xl mb-4">🔍</div>
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">No stocks found</h3>
-                            <p className="text-gray-500">Try adjusting your search terms</p>
+                            <div className="text-slate-600 text-6xl mb-4">🔍</div>
+                            <h3 className="text-xl font-semibold text-slate-300 mb-2">No stocks found</h3>
+                            <p className="text-slate-500">Try adjusting your search terms</p>
                         </div>
                     )}
 
                     {/* Empty State */}
                     {!loading && allStocks.length === 0 && !error && (
                         <div className="text-center py-12">
-                            <div className="text-gray-400 text-6xl mb-4">📈</div>
-                            <h3 className="text-xl font-semibold text-gray-600 mb-2">No stocks available</h3>
-                            <p className="text-gray-500 mb-4">Refresh to load the latest stock data</p>
+                            <div className="text-slate-600 text-6xl mb-4">📈</div>
+                            <h3 className="text-xl font-semibold text-slate-300 mb-2">No stocks available</h3>
+                            <p className="text-slate-500 mb-4">Refresh to load the latest stock data</p>
                             <button
                                 onClick={handleRefresh}
-                                className="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-700 transition-colors"
+                                className="bg-indigo-600 text-white px-6 py-3 rounded-xl hover:bg-indigo-500 transition-colors shadow-[0_0_20px_rgba(79,70,229,0.3)]"
                             >
                                 Refresh Data
                             </button>
@@ -301,17 +302,21 @@ const BrowseStocks = () => {
 
                 {/* Stock Detail Modal */}
                 {selectedStock && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-                            <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 text-white">
+                    <div
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                        style={{ backdropFilter: "blur(12px)", backgroundColor: "rgba(2,6,23,0.7)" }}
+                        onClick={(e) => { if (e.target === e.currentTarget) setSelectedStock(null); }}
+                    >
+                        <div className="bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.5)] max-w-md w-full max-h-[90vh] overflow-y-auto">
+                            <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 p-6 border-b border-white/10">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <h2 className="text-2xl font-bold">{selectedStock.tckr_symbol || selectedStock.symbol || "N/A"}</h2>
-                                        <p className="text-indigo-100 opacity-90 text-sm">{selectedStock.name || selectedStock.security_name || "No name available"}</p>
+                                        <h2 className="text-2xl font-bold text-white">{selectedStock.tckr_symbol || selectedStock.symbol || "N/A"}</h2>
+                                        <p className="text-slate-400 text-sm">{selectedStock.name || selectedStock.security_name || "No name available"}</p>
                                     </div>
                                     <button
                                         onClick={() => setSelectedStock(null)}
-                                        className="text-white hover:text-indigo-200 text-2xl"
+                                        className="text-slate-400 hover:text-white text-2xl transition-colors"
                                     >
                                         ×
                                     </button>
@@ -321,7 +326,7 @@ const BrowseStocks = () => {
                             <div className="p-6">
                                 {/* Price Summary */}
                                 <div className="text-center mb-6">
-                                    <div className="text-3xl font-bold text-gray-800 mb-2">
+                                    <div className="text-3xl font-bold text-white mb-2">
                                         ₹{(selectedStock.close_price || selectedStock.close || 0).toFixed(2)}
                                     </div>
                                     {(() => {
@@ -329,13 +334,13 @@ const BrowseStocks = () => {
                                         const isPositive = change >= 0;
                                         return (
                                             <div>
-                                                <div className={`text-lg font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'
+                                                <div className={`text-lg font-semibold ${isPositive ? 'text-emerald-400' : 'text-red-400'
                                                     }`}>
                                                     {isPositive ? '▲' : '▼'} {isPositive ? '+' : ''}₹{Math.abs(change).toFixed(2)} ({isPositive ? '+' : ''}{percentChange}%)
                                                 </div>
-                                                <div className="text-xs text-gray-500 mt-1">
+                                                <div className="text-xs text-slate-500 mt-1">
                                                     <p>Intraday Movement: Close Price vs Open Price</p>
-                                                    <p className="text-xs text-gray-400">RED = Loss (Close &lt; Open) | GREEN = Gain (Close &gt; Open)</p>
+                                                    <p className="text-xs text-slate-600">RED = Loss (Close &lt; Open) | GREEN = Gain (Close &gt; Open)</p>
                                                 </div>
                                             </div>
                                         );
@@ -345,56 +350,56 @@ const BrowseStocks = () => {
                                 {/* Detailed Price Info */}
                                 <div className="space-y-3 mb-6">
                                     {/* OHLC Data - Standard market metrics */}
-                                    <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg text-xs text-blue-700 mb-3">
+                                    <div className="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-lg text-xs text-indigo-300 mb-3">
                                         <div className="font-semibold mb-2">📊 OHLC Data (Daily Trading Range)</div>
-                                        <ul className="text-xs space-y-1">
-                                            <li>• <strong>Open</strong>: Price at market open</li>
-                                            <li>• <strong>High</strong>: Highest price during the day</li>
-                                            <li>• <strong>Low</strong>: Lowest price during the day</li>
-                                            <li>• <strong>Close</strong>: Final price at market close</li>
+                                        <ul className="text-xs space-y-1 text-slate-400">
+                                            <li>• <strong className="text-slate-300">Open</strong>: Price at market open</li>
+                                            <li>• <strong className="text-slate-300">High</strong>: Highest price during the day</li>
+                                            <li>• <strong className="text-slate-300">Low</strong>: Lowest price during the day</li>
+                                            <li>• <strong className="text-slate-300">Close</strong>: Final price at market close</li>
                                         </ul>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3">
-                                        <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                                            <div className="text-gray-500 text-xs font-medium">OPEN</div>
-                                            <div className="text-lg font-semibold text-gray-800">₹{(selectedStock.open_price || selectedStock.open || 0).toFixed(2)}</div>
-                                            <div className="text-xs text-gray-400 mt-1">Market Open Price</div>
+                                        <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                                            <div className="text-slate-500 text-xs font-medium">OPEN</div>
+                                            <div className="text-lg font-semibold text-white">₹{(selectedStock.open_price || selectedStock.open || 0).toFixed(2)}</div>
+                                            <div className="text-xs text-slate-600 mt-1">Market Open Price</div>
                                         </div>
-                                        <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                                            <div className="text-gray-500 text-xs font-medium">CLOSE</div>
-                                            <div className="text-lg font-semibold text-gray-800">₹{(selectedStock.close_price || selectedStock.close || 0).toFixed(2)}</div>
-                                            <div className="text-xs text-gray-400 mt-1">Market Close Price</div>
+                                        <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                                            <div className="text-slate-500 text-xs font-medium">CLOSE</div>
+                                            <div className="text-lg font-semibold text-white">₹{(selectedStock.close_price || selectedStock.close || 0).toFixed(2)}</div>
+                                            <div className="text-xs text-slate-600 mt-1">Market Close Price</div>
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3">
-                                        <div className="bg-green-50 p-3 rounded-xl border border-green-200">
-                                            <div className="text-green-600 text-xs font-medium">HIGH</div>
-                                            <div className="text-lg font-semibold text-green-700">₹{(selectedStock.high_price || selectedStock.high || 0).toFixed(2)}</div>
-                                            <div className="text-xs text-green-600 mt-1">Peak Price</div>
+                                        <div className="bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
+                                            <div className="text-emerald-500 text-xs font-medium">HIGH</div>
+                                            <div className="text-lg font-semibold text-emerald-400">₹{(selectedStock.high_price || selectedStock.high || 0).toFixed(2)}</div>
+                                            <div className="text-xs text-emerald-600 mt-1">Peak Price</div>
                                         </div>
-                                        <div className="bg-red-50 p-3 rounded-xl border border-red-200">
-                                            <div className="text-red-600 text-xs font-medium">LOW</div>
-                                            <div className="text-lg font-semibold text-red-700">₹{(selectedStock.low_price || selectedStock.low || 0).toFixed(2)}</div>
+                                        <div className="bg-red-500/10 p-3 rounded-xl border border-red-500/20">
+                                            <div className="text-red-500 text-xs font-medium">LOW</div>
+                                            <div className="text-lg font-semibold text-red-400">₹{(selectedStock.low_price || selectedStock.low || 0).toFixed(2)}</div>
                                             <div className="text-xs text-red-600 mt-1">Bottom Price</div>
                                         </div>
                                     </div>
 
                                     {/* Volume and Trade Info */}
-                                    <div className="bg-blue-50 p-3 rounded-xl border border-blue-200">
-                                        <div className="text-blue-600 text-xs font-medium">📈 VOLUME</div>
-                                        <div className="text-lg font-semibold text-blue-700 mt-1">
+                                    <div className="bg-indigo-500/10 p-3 rounded-xl border border-indigo-500/20">
+                                        <div className="text-indigo-400 text-xs font-medium">📈 VOLUME</div>
+                                        <div className="text-lg font-semibold text-indigo-300 mt-1">
                                             {formatVolume(selectedStock.volume || selectedStock.totaltrades)}
                                         </div>
-                                        <div className="text-xs text-blue-600 mt-1">
+                                        <div className="text-xs text-indigo-500 mt-1">
                                             Total shares traded during the day
                                         </div>
                                     </div>
 
-                                    <div className="bg-gray-50 p-3 rounded-xl border border-gray-200">
-                                        <div className="text-gray-600 text-xs font-medium">🗓 LAST UPDATED</div>
-                                        <div className="text-lg font-semibold text-gray-800 mt-1">
+                                    <div className="bg-white/5 p-3 rounded-xl border border-white/10">
+                                        <div className="text-slate-500 text-xs font-medium">🗓 LAST UPDATED</div>
+                                        <div className="text-lg font-semibold text-white mt-1">
                                             {selectedStock.trade_date ? new Date(selectedStock.trade_date).toLocaleDateString('en-IN', {
                                                 weekday: 'short',
                                                 year: 'numeric',
@@ -402,7 +407,7 @@ const BrowseStocks = () => {
                                                 day: 'numeric'
                                             }) : 'N/A'}
                                         </div>
-                                        <div className="text-xs text-gray-600 mt-1">
+                                        <div className="text-xs text-slate-600 mt-1">
                                             Data as of market close
                                         </div>
                                     </div>
@@ -410,7 +415,7 @@ const BrowseStocks = () => {
 
                                 <button
                                     onClick={() => setSelectedStock(null)}
-                                    className="w-full mt-6 bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-700 transition-colors font-medium"
+                                    className="w-full mt-6 bg-indigo-600 text-white py-3 rounded-xl hover:bg-indigo-500 transition-colors font-medium shadow-[0_0_15px_rgba(79,70,229,0.3)]"
                                 >
                                     Close
                                 </button>
