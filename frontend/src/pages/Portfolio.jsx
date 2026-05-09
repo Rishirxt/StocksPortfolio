@@ -907,11 +907,10 @@ function Portfolio() {
                   </div>
                 </div>
 
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 mt-4">
                     <span className="font-semibold">Last Updated:</span> {stockDetails.tradeDate}
                   </p>
                 </div>
-              </div>
             )}
 
             {/* Stock Input Form */}
